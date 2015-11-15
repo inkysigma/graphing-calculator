@@ -10,14 +10,14 @@ $(function(){
       
         // 'n' is the number of discrete points used to approximate the 
         // continuous math curve defined by the math expression.
-        n = 100,
+        n = 1000,
       
         // Define the math "window", which is the visible region in 
         // "math coordinates" that gets projected onto the Canvas.
-        xMin = -10,
-        xMax = 10,
-        yMin = -10,
-        yMax = 10,
+        xMin = -20,
+        xMax = 20,
+        yMin = -20,
+        yMax = 20,
       
         // Initialize the Math.js library
         math = mathjs(),
@@ -40,10 +40,12 @@ $(function(){
      //generates axes
     function generatePlane() { //generates x and y axes
         c.beginPath();
-        c.moveTo(100, 0);
-        c.lineTo(100, 200);
-        c.moveTo(0, 100);
-        c.lineTo(200, 100);
+        //y axis
+        c.moveTo(canvas.width / 2, 0); 
+        c.lineTo(canvas.width / 2, canvas.height);
+        //x axis
+        c.moveTo(0, canvas.height / 2);
+        c.lineTo(canvas.width, canvas.height / 2);
         c.stroke();
     }
 
@@ -141,7 +143,7 @@ $(function(){
         drawCurve(true, '#ff0f00', false);
         drawCurve(false, '#9900CC', false); //graphs first derivative
 
-        setExpr($('#derivResult').text()); //graphs second derivative
+        //setExpr($('#derivResult').text()); //graphs second derivative
         drawCurve(false, '336600', true);
 
         generatePlane();
@@ -161,15 +163,16 @@ $(function(){
     function calculateSecondDerivative(x) {
         //operates on assumption that f(x) = expr
         //differentiates first derivative
-        var h = 0.1;
+        var h = 0.001;
+        //var secondDerivative = calculateDerivative(x + h);
         var secondDerivative = (calculateDerivative(x + h) - calculateDerivative(x - h)) / (2 * h); //applied difference quotient
         var result = Math.round(secondDerivative * 100) / 100; //rounds answer to nearest 6th digit
         console.log(result); //displays approximate derivative in console //To be removed soon
         return result;
     }
    
-   /*
-    //precalculated derivatives and displays them in divs
+   
+    //precalculates symbolic derivatives and displays them in divs
     function displayDerivative() {
 
         var input = $('#inputField').val(); //input from the inputfield
@@ -186,7 +189,7 @@ $(function(){
         $('#deriv2Result').text(result2.text());
         // var g = result2.buildFunction();
     }
-    */
+    
 
     var iterations = 0; //for the next recursive method
 
