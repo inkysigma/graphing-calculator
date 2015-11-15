@@ -37,7 +37,7 @@ $(function(){
         expr = newExpr;
         tree = math.parse(expr, scope);
     }
-
+     //generates axes
     function generatePlane() { //generates x and y axes
         c.beginPath();
         c.moveTo(100, 0);
@@ -47,8 +47,10 @@ $(function(){
         c.stroke();
     }
 
+
+    // Parameter yesNo is set to yes for f(x) and no for f'(x) and f''(x)
     // Plots the math expression curve on the canvas.
-    function drawCurve(yesNo, paint){
+    function drawCurve(yesNo, paint, isSecond){
         // These variables are used inside the for loop.
         var i, 
         
@@ -84,7 +86,16 @@ $(function(){
             // 'mathX' varies between 'xMin' and 'xMax'.
             mathX = percentX * (xMax - xMin) + xMin;
             // mathY = f(mathX)
-            mathY = evaluateMathExpr(mathX);
+            if (yesNo == true) {
+                mathY = evaluateMathExpr(mathX);
+            }
+            else if (yesNo == false && isSecond == false) {
+                mathY = calculateDerivative(mathX);
+            }
+            else if (yesNo == false && isSecond == true) {
+                mathY = calculateSecondDerivative(mathX);
+            }
+            
       
             // Project 'mathY' from the interval ['yMin', 'yMax']
             // to the interval [0, 1].
@@ -121,71 +132,92 @@ $(function(){
         return tree.eval();
     }
 
-    //when button is clicked
+    //when button is clicked, graphs curves
     $('#btnGraph').click(function () {
-        displayDerivative();
+       // displayDerivative();
         //call function to calculate derivatives
 
-        setExpr($('#inputField').val());
-        drawCurve(true, '#ff0f00');
+        setExpr($('#inputField').val());   //graphs main function
+        drawCurve(true, '#ff0f00', false);
+        drawCurve(false, '#9900CC', false); //graphs first derivative
 
-        setExpr($('#derivResult').text());
-        drawCurve(false, '#9900CC');
-
-        setExpr($('#deriv2Result').text());
-        drawCurve(false, '336600');
+        setExpr($('#derivResult').text()); //graphs second derivative
+        drawCurve(false, '336600', true);
 
         generatePlane();
 
     });
-    /*
-    function calculateDerivative(original) {
-        var firstDeriv = nerdamer('diff(' + original + ',x)').evaluate();// nerdamer(derivative of input with respect to x);
-        //evaluates first derivative result, sets it to div
-        var result = firstDeriv.evaluate();
+
+    //takes approximate derivative at x with alternate form of difference quotient f(x+h)-f(x-h)/2h ~= f'(x) 
+    function calculateDerivative(x) {
+        //operates on assumption that f(x) = expr
+        var h = 0.00001;
+        var derivative = (evaluateMathExpr(x + h) - evaluateMathExpr(x - h)) / (2 * h); //applied difference quotient
+        var result = Math.round(derivative * 100000) / 100000; //rounds answer to nearest 6th digit
+        console.log(result); //displays approximate derivative in console //To be removed soon
         return result;
     }
-    */
-    function derivativeAndExtrema() {
+    //currently keeps returning NaN 
+    function calculateSecondDerivative(x) {
+        //operates on assumption that f(x) = expr
+        //differentiates first derivative
+        var h = 0.1;
+        var secondDerivative = (calculateDerivative(x + h) - calculateDerivative(x - h)) / (2 * h); //applied difference quotient
+        var result = Math.round(secondDerivative * 100) / 100; //rounds answer to nearest 6th digit
+        console.log(result); //displays approximate derivative in console //To be removed soon
+        return result;
+    }
+   
+   /*
+    //precalculated derivatives and displays them in divs
+    function displayDerivative() {
+
         var input = $('#inputField').val(); //input from the inputfield
+
         var firstDeriv = nerdamer('diff(' + input + ',x)').evaluate();// nerdamer(derivative of input with respect to x);
         //evaluates first derivative result, sets it to div
         var result = firstDeriv.evaluate();
         $('#derivResult').text(result.text());
-        //calculates extrema based on derivative and function
-        var xExtreme = calculateZero(0.5, input, $('#derivResult')); //calculates zero closest to x = 0.5
-        var yExtreme = evaluateMathExpr(extremum);
-        /// DO SOMETHING WITH THE EXTREMUM>
-       // var f = result.buildFunction();
+        // var f = result.buildFunction();
+
         //eval second derivative and set it to div by differentiating first derivative
         var secondDeriv = nerdamer('diff(' + firstDeriv + ',x)').evaluate();
         var result2 = secondDeriv.evaluate();
         $('#deriv2Result').text(result2.text());
-       // var g = result2.buildFunction();
-    };
+        // var g = result2.buildFunction();
+    }
+    */
 
-    var iterations = 0;
-    //function applies newton's method, taking in value for previous guess
-    function calculateZero(prevGuess, f, deriv) {
+    var iterations = 0; //for the next recursive method
+
+    //recursive function, applies newton's method taking value for previous guess
+    //NOT CALLED YET
+    function calculateZero(prevGuess) {
+
         setExpr(f); //sets expression to work on = 2nd parameter of function
-        var nextGuess;
-        var derivative = deriv;
-        var x;
-        var y;
+        console.log(expr);
+        console.log(deriv);
+        var nextGuess; //x1 in newton's
+        var derivative = deriv;  
+        var x;  //rounded x value
+        var y;  //rounded y value
+
         nextGuess = prevGuess - evaluateMathExpr(prevGuess) / derivative(prevGuess); //using newton's formula
+
         var fvalGuess = evaluateMathExpr(prevGuess);//evaluateMathExpr(nextGuess);
         //console.log(Math.round(nextGuess * 10000) / 10000);
         y = Math.round(fvalGuess * 100000) / 100000; //rounding y val to 6th place
+
         if (Math.abs(y) < 0.00000001) { //when y val is really, really close to 0
             x = Math.round(nextGuess * 100) / 100; //rounds to nearest third decimal place. Good enough for my purposes.
             console.log("X " + x);
             console.log("Y " + y);
             return nextGuess;
         }
-        else if (iterations < 20000 && Math.abs(y) > 0.00000001) { //if function val is not close and
-            //if is less than 100th iteration
+        else if (iterations < 20000 && Math.abs(y) > 0.00000001) { //if function val is not close and 
+            //if is less than 20000th iteration
             ++iterations;
-            calculateZero(nextGuess); //repeats newton's method until approximation is close enough
+            calculateZero(nextGuess, f, deriv); //repeats newton's method until approximation is close enough
         }
         else {
             console.log(nextGuess);
@@ -194,9 +226,6 @@ $(function(){
     }
     
     /*
-    dummy variables: prevGuess = 0.5
-    evaluateMathExpr = (nextGuess) * (nextGuess);
-    
-
+    dummy variables: prevGuess = 0.5 //needs to be changed so that all roots are fairly evaluated.
     */
 });
