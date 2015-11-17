@@ -7,7 +7,12 @@ $(function(){
 
         // Get the canvas context
         c = canvas.getContext('2d'),
-      
+        /* styling to be fixed later
+        c.fillStyle = "#e5ff2",
+        c.opacity = 0.9,
+        c.fill(),
+        */
+        
         // 'n' is the number of discrete points used to approximate the 
         // continuous math curve defined by the math expression.
         n = 1000,
@@ -40,14 +45,31 @@ $(function(){
      //generates axes
     function generatePlane() { //generates x and y axes
         c.beginPath();
+        var currentPt;
+        //vertical lines
+        for (var i = 0; i <= (yMax - yMin) ; i++) {
+            currentPt = ((yMin + yMax + i ) / (yMax - yMin)) * (canvas.height);
+            c.moveTo(currentPt, 0);
+            c.lineTo(currentPt, canvas.height);
+        }
         //y axis
         c.moveTo(canvas.width / 2, 0); 
         c.lineTo(canvas.width / 2, canvas.height);
+        //horizontal lines
+        for (var i = 0; i <= (xMax - xMin) ; i++) {
+            currentPt = (xMin + xMax + i) * canvas.width / (xMax - xMin);
+            c.moveTo(0, currentPt);
+            c.lineTo(canvas.width, currentPt);
+        }
         //x axis
         c.moveTo(0, canvas.height / 2);
         c.lineTo(canvas.width, canvas.height / 2);
+
+
         c.stroke();
     }
+    generatePlane();
+
 
 
     // Parameter yesNo is set to yes for f(x) and no for f'(x) and f''(x)
@@ -68,7 +90,7 @@ $(function(){
     
         if (yesNo == true) {
             // Clear the canvas.
-            c.clearRect(0, 0, canvas.width, canvas.height);
+           c.clearRect(0, 0, canvas.width, canvas.height);
         }
         c.save();
 
@@ -76,7 +98,7 @@ $(function(){
     
         // This line of code begins the math curve path definition.
         c.beginPath();
-
+        
         // 'n' is the number of points used to define the curve, which 
         // consists of (n - 1) straight line segments.
         for(i = 0; i < n; i++) {
@@ -88,12 +110,16 @@ $(function(){
             // 'mathX' varies between 'xMin' and 'xMax'.
             mathX = percentX * (xMax - xMin) + xMin;
             // mathY = f(mathX)
+
+            //if function to graph is f(x)
             if (yesNo == true) {
                 mathY = evaluateMathExpr(mathX);
             }
+            //if function to graph is f'(x)
             else if (yesNo == false && isSecond == false) {
                 mathY = calculateDerivative(mathX);
             }
+            //if function to graph is f"(x)
             else if (yesNo == false && isSecond == true) {
                 mathY = calculateSecondDerivative(mathX);
             }
@@ -141,15 +167,14 @@ $(function(){
 
         setExpr($('#inputField').val());   //graphs main function
         drawCurve(true, '#ff0f00', false);
+        generatePlane();
         drawCurve(false, '#9900CC', false); //graphs first derivative
 
         //setExpr($('#derivResult').text()); //graphs second derivative
         drawCurve(false, '336600', true);
 
-        generatePlane();
-
-    });
-
+        
+    });
     //takes approximate derivative at x with alternate form of difference quotient f(x+h)-f(x-h)/2h ~= f'(x) 
     function calculateDerivative(x) {
         //operates on assumption that f(x) = expr
@@ -159,7 +184,7 @@ $(function(){
         console.log(result); //displays approximate derivative in console //To be removed soon
         return result;
     }
-    //currently keeps returning NaN 
+
     function calculateSecondDerivative(x) {
         //operates on assumption that f(x) = expr
         //differentiates first derivative
@@ -171,8 +196,21 @@ $(function(){
         return result;
     }
    
+    //if second deriv > 0, colors one color
+    //if second deriv < 0, colors a different color
+    //if second deriv is REALLY REALLY CLOSE to zero, should draw horizontal line or similar marker.
+    function concavity() { //assuming f(x) = expr
+        var secondDeriv;
+        for(var i = 0; i < n; i++) {
+            secondDeriv = calculateSecondDerivative(/*value in here is x coordinate*/); //evaluates secondDeriv at point   
+            //should now draw a rectangle of height canvas.height and width canvas.width/n 
+            //color depends on sign of second derivative
+            //unless is zero, when horiz line should be drawn
+        }
+    }
    
     //precalculates symbolic derivatives and displays them in divs
+    //to be used later, not currently called
     function displayDerivative() {
 
         var input = $('#inputField').val(); //input from the inputfield
@@ -232,3 +270,15 @@ $(function(){
     dummy variables: prevGuess = 0.5 //needs to be changed so that all roots are fairly evaluated.
     */
 });
+
+
+/* later possible functionality to 
+function cnvs_getCoordinates(e) {
+    document.getElementById('xycoordinates').innerHTML = "Coordinates: (" + (e.clientX - 300)+ "," + (e.clientY - 300) + ")";
+};
+
+
+function cnvs_clearCoordinates() {
+    document.getElementById('xycoordinates').innerHTML = "";
+};
+*/

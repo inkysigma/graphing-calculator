@@ -8,22 +8,25 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/mathjs/0.15.0/math.min.js"></script>
      <!-- <script src="Newton'sMethod.js"></script> -->
-      <!--
+      <!-- In case I ever need a symbolic derivative:
       <script src="http://nerdamer.com/js/nerdamer.core.js"></script>
       <script src="http://nerdamer.com/js/Algebra.js"></script>
       <script src="http://nerdamer.com/js/Calculus.js"></script>
           -->
       <script src="grapher.js"></script>
-      <!--<script src="FirstDerivative.js"></script>-->
   </head>
   <body>
-      <div id="firstDeriv">f'(x)=  </div><div id="derivResult"></div>
+      <!--
+      <div id="firstDeriv">f'(x)=  </div><div id="derivResult"></div> -->
     <!-- This text field will contain the math expression to plot. -->    
-      <div id="secondDeriv">f''(x)= </div><div id="deriv2Result"></div>
-    <canvas width="600" height="600" id="myCanvas"></canvas>
+     <!-- <div id="secondDeriv">f''(x)= </div><div id="deriv2Result"></div> -->
+      
+      <canvas width="600" height="600" id="myCanvas" onmousemove="cnvs_getCoordinates(event)" onmouseout="cnvs_clearCoordinates()"></canvas>
     <input type="text" id="inputField">
-      <div>Relative Extremum:  </div><div id="extrema"></div>
+      <!-- <div>Relative Extremum:  </div><div id="extrema"></div> -->
     <!-- The math expression will be plotted on this Canvas. -->
       <input type="button" id="btnGraph" value="Graph" />
+      <div id="xycoordinates"></div>
+      <br />
   </body>
 </html>
